@@ -22,6 +22,8 @@ class DialPadBasic extends StatelessWidget {
         keyPressed: _keyPressed,
         onTextChanged: (text) => print(text),
         enableDtmf: true,
+        outputMask: "0000",
+        hint: "",
       ),
     );
   }
