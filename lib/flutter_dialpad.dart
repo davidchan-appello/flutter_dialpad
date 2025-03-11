@@ -436,7 +436,7 @@ class _DialPadState extends State<DialPad> {
       icon: widget.videoCallButtonIcon,
       iconColor: widget.videoCallButtonIconColor,
       color: widget.videoCallButtonColor,
-      onTap: _onDialPressed,
+      onTap: _onVideoCallPressed,
       scalingType: widget.scalingType,
       scalingSize: widget.dialingButtonScalingSize ?? widget.scalingSize,
       minScalingSize: widget.minScalingSize,
