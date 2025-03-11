@@ -41,7 +41,7 @@ class DigitKey extends KeyValue {
   }
 }
 
-enum DialActionKey { backspace, asterisk, hash, plus, enter }
+enum DialActionKey { backspace, asterisk, hash, plus, enter, video }
 
 class ActionKey extends KeyValue {
 
@@ -58,6 +58,8 @@ class ActionKey extends KeyValue {
   const ActionKey.plus() : this(DialActionKey.plus, '+');
 
   const ActionKey.asterisk() : this(DialActionKey.asterisk, '*');
+
+  const ActionKey.video() : this(DialActionKey.video, '');
 
   @override
   String toString() => "ActionKey('$value')";

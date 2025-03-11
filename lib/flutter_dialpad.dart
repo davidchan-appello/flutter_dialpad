@@ -14,6 +14,9 @@ class DialPad extends StatefulWidget {
   /// Callback when the dial button is pressed.
   final ValueSetter<String>? makeCall;
 
+  /// Callback when the video Call dial button is pressed.
+  final ValueSetter<String>? makeVideoCall;
+
   /// Initial unformatted text to display in the text field e.g. 15551234567
   final String? initialText;
 
@@ -28,6 +31,9 @@ class DialPad extends StatefulWidget {
 
   /// Whether to hide the dial button. Defaults to false.
   final bool hideDialButton;
+
+  /// Whether to hide the backspace button when the text field is empty. Defaults to false.
+  final bool hideVideoCallButton;
 
   /// Whether to hide the backspace button. Defaults to false.
   final bool hideBackspaceButton;
@@ -49,6 +55,15 @@ class DialPad extends StatefulWidget {
 
   /// Icon for the dial button, defaults to [Icons.phone]
   final IconData dialButtonIcon;
+
+  /// Color of the videoCall dial button, defaults to [Colors.green]
+  final Color videoCallButtonColor;
+
+  /// Color of the videoCall dial button icon, defaults to [Colors.white]
+  final Color videoCallButtonIconColor;
+
+  /// Icon for the videoCall dial button, defaults to [Icons.phone]
+  final IconData videoCallButtonIcon;
 
   /// Color of the backspace button icon, defaults to [Colors.grey]
   final Color backspaceButtonIconColor;
@@ -100,6 +115,9 @@ class DialPad extends StatefulWidget {
   /// Padding around the button. Defaults to [buttonPadding].
   final EdgeInsets? dialButtonPadding;
 
+  /// Padding around the button. Defaults to [buttonPadding].
+  final EdgeInsets? videoCallButtonPadding;
+
   /// Whether to call [makeCall] when the enter key is pressed. Defaults to false.
   final bool callOnEnter;
 
@@ -133,6 +151,9 @@ class DialPad extends StatefulWidget {
   /// Add dial button icon size. Defaults to [75].
   final double? dialButtonIconSize;
 
+  /// Add dial button icon size. Defaults to [75].
+  final double? videoCallButtonIconSize;
+
   /// Add dial button content padding. Defaults to [EdgeInsets.zero].
   final EdgeInsets? dialContentPadding;
 
@@ -147,11 +168,13 @@ class DialPad extends StatefulWidget {
 
   DialPad({
     this.makeCall,
+    this.makeVideoCall,
     this.initialText,
     this.withNumber,
     this.keyPressed,
     this.onTextChanged,
     this.hideDialButton = false,
+    this.hideVideoCallButton = false,
     this.hideBackspaceButton = false,
     this.hideSubtitle = false,
     this.outputMask = '(000) 000-0000',
@@ -161,6 +184,10 @@ class DialPad extends StatefulWidget {
     this.dialButtonColor = Colors.green,
     this.dialButtonIconColor = Colors.white,
     this.dialButtonIcon = Icons.phone,
+    this.videoCallButtonColor = Colors.orange,
+    this.videoCallButtonIconColor = Colors.white,
+    this.videoCallButtonIcon = Icons.videocam,
+
     this.dialOutputTextColor = Colors.black,
     this.dialOutputTextSize = 50,
     this.buttonTextSize = 75,
@@ -174,6 +201,7 @@ class DialPad extends StatefulWidget {
     this.buttonPadding = const EdgeInsets.all(0),
     this.backspaceButtonPadding = const EdgeInsets.all(0),
     this.dialButtonPadding = const EdgeInsets.all(0),
+    this.videoCallButtonPadding = const EdgeInsets.all(0),
     this.callOnEnter = false,
     this.copyToClipboard = true,
     this.pasteFromClipboard = true,
@@ -187,6 +215,7 @@ class DialPad extends StatefulWidget {
     this.minScalingSize = 0.2,
     this.maxScalingSize = 1.0,
     this.dialButtonIconSize,
+    this.videoCallButtonIconSize,
     this.dialContentPadding,
     this.backspaceContentPadding,
     this.keyButtonContentPadding,
@@ -303,6 +332,13 @@ class _DialPadState extends State<DialPad> {
     }
   }
 
+  /// Handles dial button press
+  void _onVideoCallPressed() {
+    if (widget.makeVideoCall != null && _value.isNotEmpty) {
+      widget.makeVideoCall!(_value);
+    }
+  }
+
   /// Handles all keyboard / UI keypad button presses
   void _onKeypadPressed(KeyValue key) {
     if (key is ActionKey && key.action == DialActionKey.backspace) {
@@ -312,7 +348,11 @@ class _DialPadState extends State<DialPad> {
       if (widget.callOnEnter) {
         _onDialPressed();
       }
-    } else {
+    } else if (key is ActionKey && key.action == DialActionKey.video) {
+      if (widget.callOnEnter) {
+        _onVideoCallPressed();
+      }
+    }else {
       // For numbers, and all actions except backspace
       _onKeyPressed(key.value);
       // Play the dtmf tone if enabled
@@ -386,6 +426,27 @@ class _DialPadState extends State<DialPad> {
             // disabled: _value.isEmpty || widget.makeCall == null,
           );
 
+    /// videoCall Dial button
+    final videoCallButton = widget.hideVideoCallButton
+        ? null
+        : ActionButton(
+      iconSize: widget.videoCallButtonIconSize ?? 75,
+      padding: widget.videoCallButtonPadding ?? widget.buttonPadding,
+      buttonType: widget.buttonType,
+      icon: widget.videoCallButtonIcon,
+      iconColor: widget.videoCallButtonIconColor,
+      color: widget.videoCallButtonColor,
+      onTap: _onDialPressed,
+      scalingType: widget.scalingType,
+      scalingSize: widget.dialingButtonScalingSize ?? widget.scalingSize,
+      minScalingSize: widget.minScalingSize,
+      maxScalingSize: widget.maxScalingSize,
+      contentPadding: widget.dialContentPadding,
+      // NOTE(cybex-dev) add as option in future
+      // disabled: _value.isEmpty || widget.makeCall == null,
+    );
+
+
     /// Backspace button
     final backspaceButton = widget.hideBackspaceButton || (_value.isEmpty && widget.hideBackspaceOnEmpty)
         ? null
@@ -410,7 +471,7 @@ class _DialPadState extends State<DialPad> {
         ? null
         : Row(
             children: [
-              Expanded(child: Container()),
+              Expanded(child: videoCallButton ?? Container()),
               Expanded(child: dialButton ?? Container()),
               Expanded(child: backspaceButton ?? Container()),
             ],
